@@ -3,19 +3,54 @@ import numpy as np
 from sklearn.feature_extraction import DictVectorizer as DV
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import RandomForestClassifier as RFC
 
+np.set_printoptions(threshold=2000)
 
 def logistic(data,label):
     """docstring for logistic"""
     data = data.fillna(0)
     X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
     
-    clf = LogisticRegression()
+    clf = LogisticRegression(penalty="l1")
     clf.fit(X_train,y_train)
     res = clf.score(X_test,y_test)
     print res
+    columns = list(data.columns)
+    """
+    print columns
+    print type(columns)
+    print len(columns)
+    print clf.coef_.tolist()
+    print type(clf.coef_.tolist()[0])
+    print len(clf.coef_.tolist()[0])
+    """
+    out = zip(columns,clf.coef_.tolist()[0])
+    for item in out:
+        if item[1]>0:
+            print str(item)
 
 
+def linear(data,label):
+    data = data.fillna(0)
+    X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
+
+    clf = LinearRegression()
+    clf.fit(X_train,y_train)
+    res = clf.score(X_test,y_test)
+    print res
+    print clf.coef_
+
+
+def rand_forest(data,label):
+    """docstring for rand_forest"""
+    data = data.fillna(0)
+    X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
+
+    clf = RFC(max_depth = 10)
+    clf.fit(X_train,y_train)
+    res = clf.score(X_test,y_test)
+    print res
 
 def main():
     """docstring for main"""
@@ -98,15 +133,25 @@ def main():
     df = df.drop(drop_features,axis=1)
     df = df[pd.notnull(df[label_column])]
     
+    # balance the two labels
+    df_label_0 = df[df[label_column]==0]
+    df_label_1 = df[df[label_column]==1]
+
+    n = min(40000,len(df_label_1))
+    df = pd.concat([df_label_0[:n],df_label_1[:n]])
+    print n
+    print len(df)
+
     df_prof = df[profile_columns]
     df_prev = df[previous_columns]
     df_label = df[label_column]
 
     prof_cate_columns = ['hearing_loc_code','ij_code','natid','courtid','ij_court_code',
-                         'year','hour_start','LastName','FirstName','FirstUndergrad','JudgeUndergradLocation',
-                        'LawSchool','JudgeLawSchoolLocation','Bar','OtherLocationsMentioned','IJ_NAME','Judge_name_SLR',
-                        'Court_SLR','Year_College_SLR','Year_Appointed_SLR','YearofFirstUndergradGraduatio',
-                        'Year_Law_school_SLR','President_SLR','judge_name_caps']    
+            'year','hour_start','LastName','FirstName','FirstUndergrad','JudgeUndergradLocation',
+            'LawSchool','JudgeLawSchoolLocation','Bar','OtherLocationsMentioned','IJ_NAME','Judge_name_SLR',
+            'Court_SLR','Year_College_SLR','Year_Appointed_SLR','YearofFirstUndergradGraduatio',
+            'Year_Law_school_SLR','President_SLR','judge_name_caps']    
+
 
     cat_df_prof = df_prof[prof_cate_columns]
     cat_dict_prof = cat_df_prof.T.to_dict().values()
@@ -136,7 +181,19 @@ def main():
     # replace the categorical columns with the dummy columns
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
     df_prof = df_prof.join(cat_df_prof_after)
+
+    """
+    # print ' =============logistics regression=========================== '
+    print "using profile: "
+    linear(df_prof,df_label)
     
+    print "\nusing previous data:"
+    linear(df_prev,df_label)
+
+    print "\n using all data"
+    whole_df = df_prev.join(df_prof)
+    linear(whole_df,df_label)
+
     print "using profile: "
     logistic(df_prof,df_label)
 
@@ -147,8 +204,40 @@ def main():
     whole_df = df_prev.join(df_prof)
     logistic(whole_df,df_label)
     
+    """
+
+    # print '============ linear regression ==========================='
+
+    """
+    print "using profile: "
+    linear(df_prof,df_label)
+    
+    print "\nusing previous data:"
+    linear(df_prev,df_label)
+
+    print "\n using all data"
+    whole_df = df_prev.join(df_prof)
+    linear(whole_df,df_label)
+
+    """
+    
+    print '============= random forest ====================='
+    
+
+    print "using profile: "
+    rand_forest(df_prof,df_label)
+    
+    print "\nusing previous data:"
+    rand_forest(df_prev,df_label)
+
+    print "\n using all data"
+    whole_df = df_prev.join(df_prof)
+    rand_forest(whole_df,df_label)
+
+
     print "grant size: ",df_label.sum()
     print "sample size: ",len(df_label)
+
 
 if __name__ == '__main__':
     main()
