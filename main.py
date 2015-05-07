@@ -137,7 +137,6 @@ def main():
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
     df_prof = df_prof.join(cat_df_prof_after)
     
-
     print "using profile: "
     logistic(df_prof,df_label)
 

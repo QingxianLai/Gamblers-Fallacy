@@ -1,0 +1,12 @@
+Using logistic regression
+
+ing profile:
+0.884010755289
+
+using previous data:
+0.857976127812
+
+ using all data
+ 0.888947375909
+ grant size:  76964.0
+ sample size:  234301
