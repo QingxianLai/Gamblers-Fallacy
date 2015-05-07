@@ -137,7 +137,7 @@ def main():
     df_label_0 = df[df[label_column]==0]
     df_label_1 = df[df[label_column]==1]
 
-    n = min(40000,len(df_label_1))
+    n = min(10000,len(df_label_1))
     df = pd.concat([df_label_0[:n],df_label_1[:n]])
     print n
     print len(df)
@@ -182,29 +182,18 @@ def main():
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
     df_prof = df_prof.join(cat_df_prof_after)
 
-    """
-    # print ' =============logistics regression=========================== '
-    print "using profile: "
-    linear(df_prof,df_label)
-    
-    print "\nusing previous data:"
-    linear(df_prev,df_label)
-
-    print "\n using all data"
-    whole_df = df_prev.join(df_prof)
-    linear(whole_df,df_label)
-
+    print ' =============logistics regression=========================== '
     print "using profile: "
     logistic(df_prof,df_label)
-
+    
     print "\nusing previous data:"
     logistic(df_prev,df_label)
 
     print "\n using all data"
     whole_df = df_prev.join(df_prof)
     logistic(whole_df,df_label)
+
     
-    """
 
     # print '============ linear regression ==========================='
 
@@ -220,7 +209,7 @@ def main():
     linear(whole_df,df_label)
 
     """
-    
+    """ 
     print '============= random forest ====================='
     
 
@@ -233,8 +222,9 @@ def main():
     print "\n using all data"
     whole_df = df_prev.join(df_prof)
     rand_forest(whole_df,df_label)
-
-
+    
+    """
+    
     print "grant size: ",df_label.sum()
     print "sample size: ",len(df_label)
 
