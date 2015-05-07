@@ -19,7 +19,8 @@ def logistic(data,label):
 
 def main():
     """docstring for main"""
-    df = pd.read_csv("../sample.csv")
+    # df = pd.read_csv("../sample.csv")
+    df = pd.read_csv("../D11-02.csv")
 
     drop_features = ['idncase', 'idnproceeding','comp_date','eoirattyid', 'alienattyid',
                      'flag_mismatch_base_city', 'flag_mismatch_hearing','min_osc_date', 
@@ -135,14 +136,20 @@ def main():
     # replace the categorical columns with the dummy columns
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
     df_prof = df_prof.join(cat_df_prof_after)
-
-    logistic(df_prof,df_label)
-    # logistic(df_prev,df_label)
-    # whole_df = df_prev.join(df_prof)
-    # logistic(whole_df,df_label)
     
-    # print df_label.sum()
-    # print len(df_label)
+
+    print "using profile: "
+    logistic(df_prof,df_label)
+
+    print "\nusing previous data:"
+    logistic(df_prev,df_label)
+
+    print "\n using all data"
+    whole_df = df_prev.join(df_prof)
+    logistic(whole_df,df_label)
+    
+    print "grant size: ",df_label.sum()
+    print "sample size: ",len(df_label)
 
 if __name__ == '__main__':
     main()
