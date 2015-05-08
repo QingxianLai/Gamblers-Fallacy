@@ -6,6 +6,8 @@ from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier as RFC
 import time
 
+
+
 np.set_printoptions(threshold=2000)
 
 def logistic(data,label):
@@ -67,7 +69,7 @@ def logistics_for_features(data,label,thresh=0):
 
     feature_pool = set(data.columns)
     print "##Total number of features: %s" % (len(list(data.columns)))
-    feature_selectted = set(logistic_less_features(data,label,thresh=2))
+    feature_selectted = set(logistic_less_features(data,label,thresh=0))
     print feature_selectted
     feature_left = feature_pool-feature_selectted
 
@@ -83,7 +85,7 @@ def logistics_for_features(data,label,thresh=0):
 
     print "##Number of selected features: %s" % (len(feature_left))
     ac_re = logistic(data_left,label)
-    print "  Accuracy with selected features: %s" % (ac_re)
+    print "  Accuracy without selected features: %s" % (ac_re)
 
     time_end = time.time()
     print "Time elapse: %s" % (time_end-time_start)
@@ -114,6 +116,13 @@ def rand_forest(data,label):
     clf.fit(X_train,y_train)
     res = clf.score(X_test,y_test)
     print res
+
+
+def plot_stack_bar(data,label):
+    data["_label"] = label
+
+
+
 
 def main():
     """docstring for main"""
@@ -200,8 +209,10 @@ def main():
     df_label_0 = df[df[label_column]==0]
     df_label_1 = df[df[label_column]==1]
 
-    n = min(20000,len(df_label_1))
-    df = pd.concat([df_label_0[:n],df_label_1[:n]])
+    n = min(30000,len(df_label_1))
+    df = pd.concat([df_label_0.loc[np.random.choice(df_label_0.index, n, replace=False)],
+                    df_label_1.loc[np.random.choice(df_label_1.index, n, replace=False)]])
+
     print n
     print len(df)
 
@@ -215,35 +226,41 @@ def main():
             'Court_SLR','Year_College_SLR','Year_Appointed_SLR','YearofFirstUndergradGraduatio',
             'Year_Law_school_SLR','President_SLR','judge_name_caps']    
 
+    # # <<<<<<<<<<<<<<<<<<<<<<<<< convert categorical features to binary features
+    # cat_df_prof = df_prof[prof_cate_columns]
+    # cat_dict_prof = cat_df_prof.T.to_dict().values()
+    #
+    # # select the columns which are categorical
+    # cat_df_prof = df_prof[prof_cate_columns]
+    #
+    # #convert numerical to string
+    # cat_df_prof = cat_df_prof.applymap(str)
+    #
+    # # dataframe to dictionary
+    # cat_dict_prof = cat_df_prof.T.to_dict().values()
+    #
+    # vec = DV(sparse=False)
+    #
+    # #dummy array
+    # cat_array_prof = vec.fit_transform(cat_dict_prof)
+    #
+    # # convert back to dataframe
+    # cat_df_prof_after = pd.DataFrame(cat_array_prof)
+    #
+    # # set column name and index
+    # dummy_columns = vec.get_feature_names()
+    # cat_df_prof_after.columns = dummy_columns
+    # cat_df_prof_after.index = df_prof.index
+    #
+    # # replace the categorical columns with the dummy columns
+    # df_prof = df_prof.drop(prof_cate_columns,axis=1)
+    # df_prof = df_prof.join(cat_df_prof_after)
+    #
 
-    cat_df_prof = df_prof[prof_cate_columns]
-    cat_dict_prof = cat_df_prof.T.to_dict().values()
-
-    # select the columns which are categorical
-    cat_df_prof = df_prof[prof_cate_columns]
-
-    #convert numerical to string 
-    cat_df_prof = cat_df_prof.applymap(str)
-
-    # dataframe to dictionary
-    cat_dict_prof = cat_df_prof.T.to_dict().values()
-
-    vec = DV(sparse=False)
-
-    #dummy array
-    cat_array_prof = vec.fit_transform(cat_dict_prof)
-
-    # convert back to dataframe
-    cat_df_prof_after = pd.DataFrame(cat_array_prof)
-
-    # set column name and index
-    dummy_columns = vec.get_feature_names()
-    cat_df_prof_after.columns = dummy_columns
-    cat_df_prof_after.index = df_prof.index
-
-    # replace the categorical columns with the dummy columns
+    # >>>>>>>>>>>>>>>>>>>>>>>just ignore categorical features
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
-    df_prof = df_prof.join(cat_df_prof_after)
+
+
 
     # print ' =============logistics regression=========================== '
     # print "using profile: "
@@ -285,9 +302,11 @@ def main():
 
     logistics_for_features(df_prof,df_label)
 
+    # logistics_for_features(df_prev,df_label)
 
-    print "grant size: ",df_label.sum()
-    print "sample size: ",len(df_label)
+
+    print "grant size: ", df_label.sum()
+    print "sample size: ", len(df_label)
 
 
 
