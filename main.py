@@ -4,6 +4,7 @@ from sklearn.feature_extraction import DictVectorizer as DV
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier as RFC
+import time
 
 np.set_printoptions(threshold=2000)
 
@@ -15,8 +16,8 @@ def logistic(data,label):
     clf = LogisticRegression(penalty="l1")
     clf.fit(X_train,y_train)
     res = clf.score(X_test,y_test)
-    print res
-    columns = list(data.columns)
+    # print res
+    # columns = list(data.columns)
     """
     print columns
     print type(columns)
@@ -25,10 +26,72 @@ def logistic(data,label):
     print type(clf.coef_.tolist()[0])
     print len(clf.coef_.tolist()[0])
     """
+    # out = zip(columns,clf.coef_.tolist()[0])
+    # for item in out:
+    #     if item[1]>0:
+    #         print "\'%s\', "%(item[0]),
+
+    return res
+
+def logistic_less_features(data,label,thresh=0):
+    """
+    :param data:
+    :param label:
+    :return: features whose weight larger than thresh
+    """
+    data = data.fillna(0)
+    X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
+
+    clf = LogisticRegression(penalty="l1")
+    clf.fit(X_train,y_train)
+    res = clf.score(X_test,y_test)
+
+    print "  Accuracy of whole features: %s" % (res)
+
+    columns = list(data.columns)
     out = zip(columns,clf.coef_.tolist()[0])
+
+    features_left = []
+
     for item in out:
-        if item[1]>0:
-            print str(item)
+        if item[1]> thresh:
+            features_left.append(item[0])
+    return features_left
+
+
+def logistics_for_features(data,label,thresh=0):
+
+    print "====================================================="
+    print "Algorithn:  Logistic Regression"
+    time_start = time.time()
+
+    feature_pool = set(data.columns)
+    print "##Total number of features: %s" % (len(list(data.columns)))
+    feature_selectted = set(logistic_less_features(data,label,thresh=2))
+    print feature_selectted
+    feature_left = feature_pool-feature_selectted
+
+    data_selectted = data[list(feature_selectted)]
+    print data_selectted.shape
+    print "##Number of selected features: %s" % (len(feature_selectted))
+    ac_se = logistic(data_selectted,label)
+    print "  Accuracy with selected features: %s" % (ac_se)
+
+
+    data_left = data[list(feature_left)]
+    print data_left.shape
+
+    print "##Number of selected features: %s" % (len(feature_left))
+    ac_re = logistic(data_left,label)
+    print "  Accuracy with selected features: %s" % (ac_re)
+
+    time_end = time.time()
+    print "Time elapse: %s" % (time_end-time_start)
+
+    print "====================================================="
+
+
+
 
 
 def linear(data,label):
@@ -61,7 +124,7 @@ def main():
                      'flag_mismatch_base_city', 'flag_mismatch_hearing','min_osc_date', 
                      'max_osc_date', 'min_input_date', 'max_input_date', 'flag_unknowntime',
                      'flag_unknownorderwithinday','order_raw','comp_dow','grantraw','L1grant2',
-                    'L2grant2',u'lojudgemeanyear', u'lojudgemeannatyear', u'lojudgemeannatdefyear', 
+                     'L2grant2','lojudgemeanyear', u'lojudgemeannatyear', u'lojudgemeannatdefyear',
                      u'difmeanyear', u'difmeannatyear', u'difmeannatdefyear', u'absdifmeanyear', 
                      u'absdifmeannatyear', u'absdifmeannatdefyear', u'outliermeanyear', u'outliermeannatyear', 
                      u'outliermeannatdefyear', u'negoutliermeanyear', u'negoutliermeannatyear',u'moderategrantrawnatdef',
@@ -137,7 +200,7 @@ def main():
     df_label_0 = df[df[label_column]==0]
     df_label_1 = df[df[label_column]==1]
 
-    n = min(10000,len(df_label_1))
+    n = min(20000,len(df_label_1))
     df = pd.concat([df_label_0[:n],df_label_1[:n]])
     print n
     print len(df)
@@ -182,51 +245,51 @@ def main():
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
     df_prof = df_prof.join(cat_df_prof_after)
 
-    print ' =============logistics regression=========================== '
-    print "using profile: "
-    logistic(df_prof,df_label)
-    
-    print "\nusing previous data:"
-    logistic(df_prev,df_label)
+    # print ' =============logistics regression=========================== '
+    # print "using profile: "
+    # logistic(df_prof,df_label)
+    #
+    # print "\nusing previous data:"
+    # logistic(df_prev,df_label)
+    #
+    # print "\n using all data"
+    # whole_df = df_prev.join(df_prof)
+    # logistic(whole_df,df_label)
 
-    print "\n using all data"
-    whole_df = df_prev.join(df_prof)
-    logistic(whole_df,df_label)
-
-    
-
+    #
     # print '============ linear regression ==========================='
-
-    """
-    print "using profile: "
-    linear(df_prof,df_label)
+    #
+    # print "using profile: "
+    # linear(df_prof,df_label)
+    #
+    # print "\nusing previous data:"
+    # linear(df_prev,df_label)
+    #
+    # print "\n using all data"
+    # whole_df = df_prev.join(df_prof)
+    # linear(whole_df,df_label)
+    #
+    # print '============= random forest ====================='
+    #
+    #
+    # print "using profile: "
+    # rand_forest(df_prof,df_label)
+    #
+    # print "\nusing previous data:"
+    # rand_forest(df_prev,df_label)
+    #
+    # print "\n using all data"
+    # whole_df = df_prev.join(df_prof)
+    # rand_forest(whole_df,df_label)
     
-    print "\nusing previous data:"
-    linear(df_prev,df_label)
 
-    print "\n using all data"
-    whole_df = df_prev.join(df_prof)
-    linear(whole_df,df_label)
+    logistics_for_features(df_prof,df_label)
 
-    """
-    """ 
-    print '============= random forest ====================='
-    
 
-    print "using profile: "
-    rand_forest(df_prof,df_label)
-    
-    print "\nusing previous data:"
-    rand_forest(df_prev,df_label)
-
-    print "\n using all data"
-    whole_df = df_prev.join(df_prof)
-    rand_forest(whole_df,df_label)
-    
-    """
-    
     print "grant size: ",df_label.sum()
     print "sample size: ",len(df_label)
+
+
 
 
 if __name__ == '__main__':
