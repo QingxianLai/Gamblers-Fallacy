@@ -10,12 +10,12 @@ import time
 
 np.set_printoptions(threshold=2000)
 
-def logistic(data,label):
+def logistic(data,label,mode="l2"):
     """docstring for logistic"""
     data = data.fillna(0)
     X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
     
-    clf = LogisticRegression(penalty="l1")
+    clf = LogisticRegression(penalty=mode)
     clf.fit(X_train,y_train)
     res = clf.score(X_test,y_test)
     # print res
@@ -48,8 +48,6 @@ def logistic_less_features(data,label,thresh=0):
     clf.fit(X_train,y_train)
     res = clf.score(X_test,y_test)
 
-    print "  Accuracy of whole features: %s" % (res)
-
     columns = list(data.columns)
     out = zip(columns,clf.coef_.tolist()[0])
 
@@ -64,17 +62,17 @@ def logistic_less_features(data,label,thresh=0):
 def logistics_for_features(data,label,thresh=0):
 
     print "====================================================="
-    print "Algorithn:  Logistic Regression"
+    print "Algorithm:  Logistic Regression"
     time_start = time.time()
 
     feature_pool = set(data.columns)
     print "##Total number of features: %s" % (len(list(data.columns)))
-    feature_selectted = set(logistic_less_features(data,label,thresh=0))
-    print feature_selectted
+    feature_selectted = set(logistic_less_features(data,label,thresh=1))
+    # print feature_selectted
     feature_left = feature_pool-feature_selectted
 
     data_selectted = data[list(feature_selectted)]
-    print data_selectted.shape
+    # print data_selectted.shape
     print "##Number of selected features: %s" % (len(feature_selectted))
     ac_se = logistic(data_selectted,label)
     print "  Accuracy with selected features: %s" % (ac_se)
@@ -102,9 +100,8 @@ def linear(data,label):
 
     clf = LinearRegression()
     clf.fit(X_train,y_train)
-    res = clf.score(X_test,y_test)
+    res = np.mean(abs(y_test-clf.decision_function(X_test)))
     print res
-    print clf.coef_
 
 
 def rand_forest(data,label):
@@ -118,8 +115,79 @@ def rand_forest(data,label):
     print res
 
 
-def plot_stack_bar(data,label):
-    data["_label"] = label
+def produce_report(data,label,dataset,algorithm,th):
+    """
+    print the report
+
+    :param data:
+    :param label:
+    :param dataset:  (str) name of dataset
+    :param algorithm:  (str) name of algorithm
+    :param th: (float) threshhold
+    :return: nothing
+    """
+    print "\n====================================================="
+    print "* Datasets : %s" % (dataset)
+    print "* Algorithm: %s" % (algorithm)
+    print "* Threshold: %s" % (th)
+
+    data = data.fillna(0)
+    X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
+
+    if algorithm=="Linear Regression":
+        clf = LinearRegression()
+    elif algorithm=="Logistic Regression_l1":
+        clf = LogisticRegression(penalty='l1')
+    elif algorithm=="Logistic Regression_l2":
+        clf = LogisticRegression(penalty='l2')
+    else:
+        clf = RFC(max_depth=10)
+
+    time_start = time.time()
+    feature_selectted = set(logistic_less_features(data,label,thresh=th))
+
+    feature_pool = set(data.columns)
+    print "* Total number of features: %s" % (len(list(data.columns)))
+    clf.fit(X_train,y_train)
+    if algorithm=="Linear Regression":
+        res = np.mean(abs(y_test-clf.decision_function(X_test)))
+    else:
+        res = clf.score(X_test,y_test)
+    print "  Accuracy of whole features: %s" %(res)
+
+    if len(feature_selectted)>0:
+        if len(feature_selectted)<10:
+            print " >>",feature_selectted
+        # print feature_selectted
+        feature_left = feature_pool-feature_selectted
+        data_selectted = data[list(feature_selectted)]
+        print "* Number of selected features: %s" % (len(feature_selectted))
+        X_train_s,X_test_s,y_train_s,y_test_s = train_test_split(data_selectted,label,test_size=0.3,random_state=42)
+        clf.fit(X_train_s,y_train_s)
+        if algorithm=="Linear Regression":
+            res_s = np.mean(abs(y_test_s-clf.decision_function(X_test_s)))
+        else:
+            res_s = clf.score(X_test_s,y_test_s)
+        print "  Accuracy with selected features: %s" % (res_s)
+
+
+        data_left = data[list(feature_left)]
+        print "* Number of features left: %s" % (len(feature_left))
+        X_train_l,X_test_l,y_train_l,y_test_l = train_test_split(data_left,label,test_size=0.3,random_state=42)
+        clf.fit(X_train_l,y_train_l)
+        if algorithm=="Linear Regression":
+            res_l = np.mean(abs(y_test_l-clf.decision_function(X_test_l)))
+        else:
+            res_l = clf.score(X_test_l,y_test_l)
+        print "  Accuracy without selected features: %s" % (res_l)
+
+    time_end = time.time()
+    print "* Time elapse: %s" % (time_end-time_start)
+
+    print "====================================================="
+    print data.shape
+    print "\n"
+
 
 
 
@@ -129,17 +197,17 @@ def main():
     # df = pd.read_csv("../sample.csv")
     df = pd.read_csv("../D11-02.csv")
 
-    drop_features = ['idncase', 'idnproceeding','comp_date','eoirattyid', 'alienattyid',
-                     'flag_mismatch_base_city', 'flag_mismatch_hearing','min_osc_date', 
-                     'max_osc_date', 'min_input_date', 'max_input_date', 'flag_unknowntime',
-                     'flag_unknownorderwithinday','order_raw','comp_dow','grantraw','L1grant2',
-                     'L2grant2','lojudgemeanyear', u'lojudgemeannatyear', u'lojudgemeannatdefyear',
+    drop_features = [u'idncase', u'idnproceeding',u'comp_date',u'eoirattyid', u'alienattyid',
+                     u'flag_mismatch_base_city', u'flag_mismatch_hearing',u'min_osc_date',
+                     u'max_osc_date', u'min_input_date', u'max_input_date', u'flag_unknowntime',
+                     u'flag_unknownorderwithinday',u'order_raw',u'comp_dow',u'grantraw',u'L1grant2',
+                     u'L2grant2',u'lojudgemeanyear', u'lojudgemeannatyear', u'lojudgemeannatdefyear',
                      u'difmeanyear', u'difmeannatyear', u'difmeannatdefyear', u'absdifmeanyear', 
                      u'absdifmeannatyear', u'absdifmeannatdefyear', u'outliermeanyear', u'outliermeannatyear', 
                      u'outliermeannatdefyear', u'negoutliermeanyear', u'negoutliermeannatyear',u'moderategrantrawnatdef',
                      u'Gender', u'DateofAppointment',u'famcode', ]
     # drop famcode because there are too many of them. 
-    label_column = 'grant'
+    label_column = u'grant'
     profile_columns = [u'hearing_loc_code', u'ij_code',u'lawyer', u'defensive', u'natid', u'written', 
                        u'flag_decisionerror_strdes', u'flag_decisionerror_idncaseproc', u'adj_time_start',
                        u'flag_earlystarttime', u'courtid', u'ij_court_code',u'numinfamily',
@@ -165,9 +233,9 @@ def main():
                        u'Academia_Years_SLR', u'judge_name_caps', u'experience',u'log_experience', u'log_gov_experience',
                        u'log_INS_experience', u'log_military_experience', u'log_private_experience', 
                        u'log_academic_experience', u'govD', u'INSD', u'militaryD', u'privateD', u'academicD',
-                       u'democrat', u'republican','hour_start'] 
+                       u'democrat', u'republican',u'hour_start']
     
-    previous_columns = ['numanycasesperday', u'flag_multiple_proceedings', u'flag_notfirstproceeding', 
+    previous_columns = [u'numanycasesperday', u'flag_multiple_proceedings', u'flag_notfirstproceeding',
                         u'flag_multiple_proceedings2',u'flag_notfirstproceeding2', u'flag_prevprocgrant',
                         u'flag_prevprocdeny', u'numasylumcasesperday',u'numpeopleperday', u'orderwithinday',
                         u'lastindayD', u'L1grant', u'L1grant_sameday', u'L2grant', u'L2grant_sameday',u'numgrant_prev5',
@@ -209,12 +277,10 @@ def main():
     df_label_0 = df[df[label_column]==0]
     df_label_1 = df[df[label_column]==1]
 
-    n = min(30000,len(df_label_1))
+    n = min(100,len(df_label_1))
     df = pd.concat([df_label_0.loc[np.random.choice(df_label_0.index, n, replace=False)],
                     df_label_1.loc[np.random.choice(df_label_1.index, n, replace=False)]])
 
-    print n
-    print len(df)
 
     df_prof = df[profile_columns]
     df_prev = df[previous_columns]
@@ -226,39 +292,39 @@ def main():
             'Court_SLR','Year_College_SLR','Year_Appointed_SLR','YearofFirstUndergradGraduatio',
             'Year_Law_school_SLR','President_SLR','judge_name_caps']    
 
-    # # <<<<<<<<<<<<<<<<<<<<<<<<< convert categorical features to binary features
-    # cat_df_prof = df_prof[prof_cate_columns]
-    # cat_dict_prof = cat_df_prof.T.to_dict().values()
-    #
-    # # select the columns which are categorical
-    # cat_df_prof = df_prof[prof_cate_columns]
-    #
-    # #convert numerical to string
-    # cat_df_prof = cat_df_prof.applymap(str)
-    #
-    # # dataframe to dictionary
-    # cat_dict_prof = cat_df_prof.T.to_dict().values()
-    #
-    # vec = DV(sparse=False)
-    #
-    # #dummy array
-    # cat_array_prof = vec.fit_transform(cat_dict_prof)
-    #
-    # # convert back to dataframe
-    # cat_df_prof_after = pd.DataFrame(cat_array_prof)
-    #
-    # # set column name and index
-    # dummy_columns = vec.get_feature_names()
-    # cat_df_prof_after.columns = dummy_columns
-    # cat_df_prof_after.index = df_prof.index
-    #
-    # # replace the categorical columns with the dummy columns
-    # df_prof = df_prof.drop(prof_cate_columns,axis=1)
-    # df_prof = df_prof.join(cat_df_prof_after)
-    #
+    # <<<<<<<<<<<<<<<<<<<<<<<<< convert categorical features to binary features
+    cat_df_prof = df_prof[prof_cate_columns]
+    cat_dict_prof = cat_df_prof.T.to_dict().values()
 
-    # >>>>>>>>>>>>>>>>>>>>>>>just ignore categorical features
+    # select the columns which are categorical
+    cat_df_prof = df_prof[prof_cate_columns]
+
+    #convert numerical to string
+    cat_df_prof = cat_df_prof.applymap(str)
+
+    # dataframe to dictionary
+    cat_dict_prof = cat_df_prof.T.to_dict().values()
+
+    vec = DV(sparse=False)
+
+    #dummy array
+    cat_array_prof = vec.fit_transform(cat_dict_prof)
+
+    # convert back to dataframe
+    cat_df_prof_after = pd.DataFrame(cat_array_prof)
+
+    # set column name and index
+    dummy_columns = vec.get_feature_names()
+    cat_df_prof_after.columns = dummy_columns
+    cat_df_prof_after.index = df_prof.index
+
+    # replace the categorical columns with the dummy columns
+    df_prof_no_dummy = df_prof.drop(prof_cate_columns,axis=1)
     df_prof = df_prof.drop(prof_cate_columns,axis=1)
+    df_prof = df_prof.join(cat_df_prof_after)
+
+
+
 
 
 
@@ -273,7 +339,7 @@ def main():
     # whole_df = df_prev.join(df_prof)
     # logistic(whole_df,df_label)
 
-    #
+
     # print '============ linear regression ==========================='
     #
     # print "using profile: "
@@ -298,15 +364,30 @@ def main():
     # print "\n using all data"
     # whole_df = df_prev.join(df_prof)
     # rand_forest(whole_df,df_label)
-    
 
-    logistics_for_features(df_prof,df_label)
 
+    # with or without some features
+    # logistics_for_features(df_prof,df_label)
     # logistics_for_features(df_prev,df_label)
 
 
-    print "grant size: ", df_label.sum()
-    print "sample size: ", len(df_label)
+
+    # produce report
+    whole_df = df_prev.join(df_prof)
+
+    datasets = [whole_df,df_prev,df_prof,df_prof_no_dummy]
+    datasets_name = ["All Feature","Previous Decisions","Profile features","Profile features without categorical features"]
+    Algos = ["Linear Regression","Logistic Regression_l1","Logistic Regression_l2","Random Forest"]
+    thresholds = [0,0.5,1,2,5]
+
+    for i in range(len(datasets)):
+        for algo in Algos:
+            for th in thresholds:
+                produce_report(datasets[i],df_label,datasets_name[i],algo,th)
+
+
+    # print "grant size: ", df_label.sum()
+    # print "sample size: ", len(df_label)
 
 
 
