@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier as RFC
 import time
-
+import os
 
 
 np.set_printoptions(threshold=2000)
@@ -115,7 +115,7 @@ def rand_forest(data,label):
     print res
 
 
-def produce_report(data,label,dataset,algorithm,th):
+def produce_report(data,label,dataset,algorithm,th,output_file):
     """
     print the report
 
@@ -126,10 +126,10 @@ def produce_report(data,label,dataset,algorithm,th):
     :param th: (float) threshhold
     :return: nothing
     """
-    print "\n====================================================="
-    print "* Datasets : %s" % (dataset)
-    print "* Algorithm: %s" % (algorithm)
-    print "* Threshold: %s" % (th)
+    output_file.write("\n====================================================="+"\n")
+    output_file.write("* Datasets : %s" % (dataset) +"\n")
+    output_file.write("* Algorithm: %s" % (algorithm) +"\n")
+    output_file.write("* Threshold: %s" % (th) +"\n")
 
     data = data.fillna(0)
     X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
@@ -147,46 +147,48 @@ def produce_report(data,label,dataset,algorithm,th):
     feature_selectted = set(logistic_less_features(data,label,thresh=th))
 
     feature_pool = set(data.columns)
-    print "* Total number of features: %s" % (len(list(data.columns)))
+    output_file.write("* Total number of features: %s" % (len(list(data.columns)))+"\n")
     clf.fit(X_train,y_train)
     if algorithm=="Linear Regression":
         res = np.mean(abs(y_test-clf.decision_function(X_test)))
     else:
         res = clf.score(X_test,y_test)
-    print "  Accuracy of whole features: %s" %(res)
+    output_file.write("  Accuracy of whole features: %s" %(res)+"\n")
 
     if len(feature_selectted)>0:
         if len(feature_selectted)<10:
-            print " >>",feature_selectted
+            output_file.write("  >>")
+            output_file.write(str(feature_selectted))
+            output_file.write("\n")
         # print feature_selectted
         feature_left = feature_pool-feature_selectted
         data_selectted = data[list(feature_selectted)]
-        print "* Number of selected features: %s" % (len(feature_selectted))
+        output_file.write("* Number of selected features: %s" % (len(feature_selectted))+"\n")
         X_train_s,X_test_s,y_train_s,y_test_s = train_test_split(data_selectted,label,test_size=0.3,random_state=42)
         clf.fit(X_train_s,y_train_s)
         if algorithm=="Linear Regression":
             res_s = np.mean(abs(y_test_s-clf.decision_function(X_test_s)))
         else:
             res_s = clf.score(X_test_s,y_test_s)
-        print "  Accuracy with selected features: %s" % (res_s)
+        output_file.write("  Accuracy with selected features: %s" % (res_s)+"\n")
 
 
         data_left = data[list(feature_left)]
-        print "* Number of features left: %s" % (len(feature_left))
+        output_file.write("* Number of features left: %s" % (len(feature_left))+"\n")
         X_train_l,X_test_l,y_train_l,y_test_l = train_test_split(data_left,label,test_size=0.3,random_state=42)
         clf.fit(X_train_l,y_train_l)
         if algorithm=="Linear Regression":
             res_l = np.mean(abs(y_test_l-clf.decision_function(X_test_l)))
         else:
             res_l = clf.score(X_test_l,y_test_l)
-        print "  Accuracy without selected features: %s" % (res_l)
+        output_file.write("  Accuracy without selected features: %s" % (res_l)+"\n")
 
     time_end = time.time()
-    print "* Time elapse: %s" % (time_end-time_start)
+    output_file.write("* Time elapse: %s" % (time_end-time_start)+"\n")
 
-    print "====================================================="
-    print data.shape
-    print "\n"
+    output_file.write("====================================================="+"\n")
+    output_file.write(str(data.shape))
+    output_file.write("\n")
 
 
 
@@ -377,14 +379,23 @@ def main():
 
     datasets = [whole_df,df_prev,df_prof,df_prof_no_dummy]
     datasets_name = ["All Feature","Previous Decisions","Profile features","Profile features without categorical features"]
-    Algos = ["Linear Regression","Logistic Regression_l1","Logistic Regression_l2","Random Forest"]
+#    Algos = ["Linear Regression","Logistic Regression_l1","Logistic Regression_l2","Random Forest"]
     thresholds = [0,0.5,1,2,5]
+    Algos = ["Linear Regression","Logistic Regression_l1","Logistic Regression_l2"]
+    
+    try:
+        os.mkdir("output")
+    except:
+        pass
 
     for i in range(len(datasets)):
         for algo in Algos:
+            output_file_name = "output/"+datasets_name[i]+algo+".txt"
+            print output_file_name
+            output_file = open(output_file_name,'w')
             for th in thresholds:
-                produce_report(datasets[i],df_label,datasets_name[i],algo,th)
-
+                produce_report(datasets[i],df_label,datasets_name[i],algo,th,output_file)
+            output_file.close()
 
     # print "grant size: ", df_label.sum()
     # print "sample size: ", len(df_label)
