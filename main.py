@@ -191,7 +191,14 @@ def produce_report(data,label,dataset,algorithm,th,output_file):
     output_file.write("\n")
 
 
-
+def num_of_dummies(df):
+    """docstring for num_of_dummies"""
+    columns = df.columns
+    a = {}
+    for i in columns:
+        a[i] = len(df[i].unique())
+    print a
+    
 
 
 def main():
@@ -207,12 +214,16 @@ def main():
                      u'difmeanyear', u'difmeannatyear', u'difmeannatdefyear', u'absdifmeanyear', 
                      u'absdifmeannatyear', u'absdifmeannatdefyear', u'outliermeanyear', u'outliermeannatyear', 
                      u'outliermeannatdefyear', u'negoutliermeanyear', u'negoutliermeannatyear',u'moderategrantrawnatdef',
-                     u'Gender', u'DateofAppointment',u'famcode', ]
-    # drop famcode because there are too many of them. 
+                     u'Gender', u'DateofAppointment',u'famcode', u'ij_court_code',u'FirstName', u'LastName',
+                     u'FirstUndergrad', u'Judge_name_SLR', u'judge_name_caps', u'OtherLocationsMentioned',
+                     u'Year_College_SLR', u'courtid', u'ij_code']
+    #  drop famcode and ij_court_code because there are too many of them. drop ij_code, FirstName,LastName,Judge_name_SLR and judge_name_caps
+    #  because they are redundant with IJ_NAME; drop courtid because it is redundant with Court_SLR, drop Year_College_SLR
+    #  because it is equal to YearofFirstUndergradGraduatio
     label_column = u'grant'
-    profile_columns = [u'hearing_loc_code', u'ij_code',u'lawyer', u'defensive', u'natid', u'written', 
+    profile_columns = [u'hearing_loc_code', u'lawyer', u'defensive', u'natid', u'written',
                        u'flag_decisionerror_strdes', u'flag_decisionerror_idncaseproc', u'adj_time_start',
-                       u'flag_earlystarttime', u'courtid', u'ij_court_code',u'numinfamily',
+                       u'flag_earlystarttime', u'numinfamily',
                        u'numfamsperslot',u'year', u'meangrant_judge', u'numdecisions_judge', u'lomeangrant_judge',
                        u'meangrantraw_judge', u'numdecisionsraw_judge', u'lomeangrantraw_judge', u'moderategrant3070', 
                        u'moderategrantraw3070',u'numdecisions_judgenat', u'lomeangrant_judgenat', u'meangrantraw_judgenat',
@@ -226,13 +237,13 @@ def main():
                        u'natdefcourtcode', u'samenat', u'haseoir', u'samedefensive', u'morning', u'lunchtime', 
                        u'afternoon', u'numcases_judgeday', u'numcases_judge', u'numcases_court', u'numcases_court_hearing',
                        u'avgnumanycasesperday', u'avgnumasylumcasesperday', u'avgnumpeopleperday', u'avgnumfamsperday',
-                       u'LastName', u'FirstName', u'FirstUndergrad', u'JudgeUndergradLocation', u'LawSchool', 
-                       u'JudgeLawSchoolLocation', u'Bar', u'OtherLocationsMentioned', u'IJ_NAME', u'Judge_name_SLR', 
+                       u'JudgeUndergradLocation', u'LawSchool',
+                       u'JudgeLawSchoolLocation', u'Bar', u'IJ_NAME',
                        u'Male_judge', u'Court_SLR', u'Year_Appointed_SLR', 
-                       u'YearofFirstUndergradGraduatio', u'Year_College_SLR', u'Year_Law_school_SLR', 
+                       u'YearofFirstUndergradGraduatio', u'Year_Law_school_SLR',
                        u'President_SLR', u'Government_Years_SLR', u'Govt_nonINS_SLR', u'INS_Years_SLR', 
                        u'INS_Every5Years_SLR', u'Military_Years_SLR', u'NGO_Years_SLR', u'Privateprac_Years_SLR', 
-                       u'Academia_Years_SLR', u'judge_name_caps', u'experience',u'log_experience', u'log_gov_experience',
+                       u'Academia_Years_SLR', u'experience',u'log_experience', u'log_gov_experience',
                        u'log_INS_experience', u'log_military_experience', u'log_private_experience', 
                        u'log_academic_experience', u'govD', u'INSD', u'militaryD', u'privateD', u'academicD',
                        u'democrat', u'republican',u'hour_start']
@@ -271,7 +282,7 @@ def main():
                         u'courtprevother10_dayslapse', u'courtmeanyear', u'courtmeannatyear', 
                         u'courtmeannatdefyear', u'judgemeanyear', u'judgemeannatyear', u'judgemeannatdefyear', 
                         u'judgenumdecyear', u'judgenumdecnatyear', u'judgenumdecnatdefyear',u'grantgrant', 
-                        u'grantdeny', u'denygrant', u'denydeny',  ]
+                        u'grantdeny', u'denygrant', u'denydeny']
     df = df.drop(drop_features,axis=1)
     df = df[pd.notnull(df[label_column])]
     
@@ -288,11 +299,11 @@ def main():
     df_prev = df[previous_columns]
     df_label = df[label_column]
 
-    prof_cate_columns = ['hearing_loc_code','ij_code','natid','courtid','ij_court_code',
-            'year','hour_start','LastName','FirstName','FirstUndergrad','JudgeUndergradLocation',
-            'LawSchool','JudgeLawSchoolLocation','Bar','OtherLocationsMentioned','IJ_NAME','Judge_name_SLR',
-            'Court_SLR','Year_College_SLR','Year_Appointed_SLR','YearofFirstUndergradGraduatio',
-            'Year_Law_school_SLR','President_SLR','judge_name_caps']    
+    prof_cate_columns = ['hearing_loc_code','natid',
+            'year','hour_start','JudgeUndergradLocation',
+            'LawSchool','JudgeLawSchoolLocation','Bar','IJ_NAME',
+            'Court_SLR','Year_Appointed_SLR','YearofFirstUndergradGraduatio',
+            'Year_Law_school_SLR','President_SLR']
 
     # <<<<<<<<<<<<<<<<<<<<<<<<< convert categorical features to binary features
     cat_df_prof = df_prof[prof_cate_columns]
