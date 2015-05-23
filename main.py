@@ -14,7 +14,7 @@ def logistic(data,label,mode="l2"):
     """docstring for logistic"""
     data = data.fillna(0)
     X_train,X_test,y_train,y_test = train_test_split(data,label,test_size=0.3,random_state=42)
-    
+
     clf = LogisticRegression(penalty=mode)
     clf.fit(X_train,y_train)
     res = clf.score(X_test,y_test)
@@ -198,7 +198,7 @@ def num_of_dummies(df):
     for i in columns:
         a[i] = len(df[i].unique())
     print a
-    
+
 
 
 def main():
@@ -211,8 +211,8 @@ def main():
                      u'max_osc_date', u'min_input_date', u'max_input_date', u'flag_unknowntime',
                      u'flag_unknownorderwithinday',u'order_raw',u'comp_dow',u'grantraw',u'L1grant2',
                      u'L2grant2',u'lojudgemeanyear', u'lojudgemeannatyear', u'lojudgemeannatdefyear',
-                     u'difmeanyear', u'difmeannatyear', u'difmeannatdefyear', u'absdifmeanyear', 
-                     u'absdifmeannatyear', u'absdifmeannatdefyear', u'outliermeanyear', u'outliermeannatyear', 
+                     u'difmeanyear', u'difmeannatyear', u'difmeannatdefyear', u'absdifmeanyear',
+                     u'absdifmeannatyear', u'absdifmeannatdefyear', u'outliermeanyear', u'outliermeannatyear',
                      u'outliermeannatdefyear', u'negoutliermeanyear', u'negoutliermeannatyear',u'moderategrantrawnatdef',
                      u'Gender', u'DateofAppointment',u'famcode', u'ij_court_code',u'FirstName', u'LastName',
                      u'FirstUndergrad', u'Judge_name_SLR', u'judge_name_caps', u'OtherLocationsMentioned',
@@ -225,67 +225,67 @@ def main():
                        u'flag_decisionerror_strdes', u'flag_decisionerror_idncaseproc', u'adj_time_start',
                        u'flag_earlystarttime', u'numinfamily',
                        u'numfamsperslot',u'year', u'meangrant_judge', u'numdecisions_judge', u'lomeangrant_judge',
-                       u'meangrantraw_judge', u'numdecisionsraw_judge', u'lomeangrantraw_judge', u'moderategrant3070', 
+                       u'meangrantraw_judge', u'numdecisionsraw_judge', u'lomeangrantraw_judge', u'moderategrant3070',
                        u'moderategrantraw3070',u'numdecisions_judgenat', u'lomeangrant_judgenat', u'meangrantraw_judgenat',
-                       u'numdecisionsraw_judgenat', u'lomeangrantraw_judgenat', u'meangrant_judgedef', 
-                       u'numdecisions_judgedef', u'lomeangrant_judgedef', u'meangrantraw_judgedef', 
-                       u'numdecisionsraw_judgedef', u'lomeangrantraw_judgedef', u'meangrant_judgenatdef', 
+                       u'numdecisionsraw_judgenat', u'lomeangrantraw_judgenat', u'meangrant_judgedef',
+                       u'numdecisions_judgedef', u'lomeangrant_judgedef', u'meangrantraw_judgedef',
+                       u'numdecisionsraw_judgedef', u'lomeangrantraw_judgedef', u'meangrant_judgenatdef',
                        u'numdecisions_judgenatdef', u'lomeangrant_judgenatdef', u'meangrantraw_judgenatdef',
                        u'numdecisionsraw_judgenatdef', u'lomeangrantraw_judgenatdef', u'meangrant_judgelawyer',
-                       u'numdecisions_judgelawyer', u'lomeangrant_judgelawyer', u'meangrantraw_judgelawyer', 
+                       u'numdecisions_judgelawyer', u'lomeangrant_judgelawyer', u'meangrantraw_judgelawyer',
                        u'numdecisionsraw_judgelawyer', u'lomeangrantraw_judgelawyer', u'natcourtcode', u'natdefcode',
-                       u'natdefcourtcode', u'samenat', u'haseoir', u'samedefensive', u'morning', u'lunchtime', 
+                       u'natdefcourtcode', u'samenat', u'haseoir', u'samedefensive', u'morning', u'lunchtime',
                        u'afternoon', u'numcases_judgeday', u'numcases_judge', u'numcases_court', u'numcases_court_hearing',
                        u'avgnumanycasesperday', u'avgnumasylumcasesperday', u'avgnumpeopleperday', u'avgnumfamsperday',
                        u'JudgeUndergradLocation', u'LawSchool',
                        u'JudgeLawSchoolLocation', u'Bar', u'IJ_NAME',
-                       u'Male_judge', u'Court_SLR', u'Year_Appointed_SLR', 
+                       u'Male_judge', u'Court_SLR', u'Year_Appointed_SLR',
                        u'YearofFirstUndergradGraduatio', u'Year_Law_school_SLR',
-                       u'President_SLR', u'Government_Years_SLR', u'Govt_nonINS_SLR', u'INS_Years_SLR', 
-                       u'INS_Every5Years_SLR', u'Military_Years_SLR', u'NGO_Years_SLR', u'Privateprac_Years_SLR', 
+                       u'President_SLR', u'Government_Years_SLR', u'Govt_nonINS_SLR', u'INS_Years_SLR',
+                       u'INS_Every5Years_SLR', u'Military_Years_SLR', u'NGO_Years_SLR', u'Privateprac_Years_SLR',
                        u'Academia_Years_SLR', u'experience',u'log_experience', u'log_gov_experience',
-                       u'log_INS_experience', u'log_military_experience', u'log_private_experience', 
+                       u'log_INS_experience', u'log_military_experience', u'log_private_experience',
                        u'log_academic_experience', u'govD', u'INSD', u'militaryD', u'privateD', u'academicD',
                        u'democrat', u'republican',u'hour_start']
-    
+
     previous_columns = [u'numanycasesperday', u'flag_multiple_proceedings', u'flag_notfirstproceeding',
                         u'flag_multiple_proceedings2',u'flag_notfirstproceeding2', u'flag_prevprocgrant',
                         u'flag_prevprocdeny', u'numasylumcasesperday',u'numpeopleperday', u'orderwithinday',
                         u'lastindayD', u'L1grant', u'L1grant_sameday', u'L2grant', u'L2grant_sameday',u'numgrant_prev5',
                         u'numgrant_prev6', u'numgrant_prev7', u'numgrant_prev8', u'numgrant_prev9', u'numgrant_prev10',
                         u'prev5_dayslapse', u'prev6_dayslapse', u'prev7_dayslapse', u'prev8_dayslapse', u'prev9_dayslapse',
-                        u'prev10_dayslapse', u'raw_order_court', u'numcourtgrant_prev5', u'numcourtgrantself_prev5', 
-                        u'numcourtdecideself_prev5', u'numcourtgrant_prev6', u'numcourtdecideself_prev6', 
-                        u'numcourtgrantself_prev6', u'numcourtgrant_prev7', u'numcourtdecideself_prev7', 
-                        u'numcourtgrantself_prev7', u'numcourtgrant_prev8', u'numcourtdecideself_prev8', 
-                        u'numcourtgrantself_prev8', u'numcourtgrant_prev9', u'numcourtdecideself_prev9', 
-                        u'numcourtgrantself_prev9', u'numcourtgrant_prev10', u'numcourtdecideself_prev10', 
-                        u'numcourtgrantself_prev10', u'numcourtgrant_prev11', u'numcourtdecideself_prev11', 
-                        u'numcourtgrantself_prev11', u'numcourtgrant_prev12', u'numcourtdecideself_prev12', 
-                        u'numcourtgrantself_prev12', u'numcourtgrant_prev13', u'numcourtdecideself_prev13', 
+                        u'prev10_dayslapse', u'raw_order_court', u'numcourtgrant_prev5', u'numcourtgrantself_prev5',
+                        u'numcourtdecideself_prev5', u'numcourtgrant_prev6', u'numcourtdecideself_prev6',
+                        u'numcourtgrantself_prev6', u'numcourtgrant_prev7', u'numcourtdecideself_prev7',
+                        u'numcourtgrantself_prev7', u'numcourtgrant_prev8', u'numcourtdecideself_prev8',
+                        u'numcourtgrantself_prev8', u'numcourtgrant_prev9', u'numcourtdecideself_prev9',
+                        u'numcourtgrantself_prev9', u'numcourtgrant_prev10', u'numcourtdecideself_prev10',
+                        u'numcourtgrantself_prev10', u'numcourtgrant_prev11', u'numcourtdecideself_prev11',
+                        u'numcourtgrantself_prev11', u'numcourtgrant_prev12', u'numcourtdecideself_prev12',
+                        u'numcourtgrantself_prev12', u'numcourtgrant_prev13', u'numcourtdecideself_prev13',
                         u'numcourtgrantself_prev13', u'numcourtgrant_prev14', u'numcourtdecideself_prev14',
-                        u'numcourtgrantself_prev14', u'numcourtgrant_prev15', u'numcourtdecideself_prev15', 
+                        u'numcourtgrantself_prev14', u'numcourtgrant_prev15', u'numcourtdecideself_prev15',
                         u'numcourtgrantself_prev15', u'numcourtgrant_prev16', u'numcourtdecideself_prev16',
-                        u'numcourtgrant_prev17', u'numcourtdecideself_prev17', u'numcourtgrantself_prev17', 
-                        u'numcourtgrant_prev18', u'numcourtdecideself_prev18', u'numcourtgrantself_prev18', 
-                        u'numcourtgrant_prev19', u'numcourtdecideself_prev19', u'numcourtgrantself_prev19', 
-                        u'numcourtgrant_prev20', u'numcourtdecideself_prev20', u'numcourtgrantself_prev20', 
-                        u'courtprev5_dayslapse', u'courtprev6_dayslapse', u'courtprev7_dayslapse', 
-                        u'courtprev8_dayslapse', u'courtprev9_dayslapse', u'courtprev10_dayslapse', 
-                        u'courtprev11_dayslapse', u'courtprev12_dayslapse', u'courtprev13_dayslapse', 
+                        u'numcourtgrant_prev17', u'numcourtdecideself_prev17', u'numcourtgrantself_prev17',
+                        u'numcourtgrant_prev18', u'numcourtdecideself_prev18', u'numcourtgrantself_prev18',
+                        u'numcourtgrant_prev19', u'numcourtdecideself_prev19', u'numcourtgrantself_prev19',
+                        u'numcourtgrant_prev20', u'numcourtdecideself_prev20', u'numcourtgrantself_prev20',
+                        u'courtprev5_dayslapse', u'courtprev6_dayslapse', u'courtprev7_dayslapse',
+                        u'courtprev8_dayslapse', u'courtprev9_dayslapse', u'courtprev10_dayslapse',
+                        u'courtprev11_dayslapse', u'courtprev12_dayslapse', u'courtprev13_dayslapse',
                         u'courtprev14_dayslapse', u'courtprev15_dayslapse', u'courtprev16_dayslapse',
-                        u'courtprev17_dayslapse', u'courtprev18_dayslapse', u'courtprev19_dayslapse', 
-                        u'courtprev20_dayslapse', u'numcourtgrantother_prev5', u'courtprevother5_dayslapse', 
-                        u'numcourtgrantother_prev6', u'courtprevother6_dayslapse', u'numcourtgrantother_prev7', 
-                        u'courtprevother7_dayslapse', u'numcourtgrantother_prev8', u'courtprevother8_dayslapse', 
-                        u'numcourtgrantother_prev9', u'courtprevother9_dayslapse', u'numcourtgrantother_prev10', 
-                        u'courtprevother10_dayslapse', u'courtmeanyear', u'courtmeannatyear', 
-                        u'courtmeannatdefyear', u'judgemeanyear', u'judgemeannatyear', u'judgemeannatdefyear', 
-                        u'judgenumdecyear', u'judgenumdecnatyear', u'judgenumdecnatdefyear',u'grantgrant', 
+                        u'courtprev17_dayslapse', u'courtprev18_dayslapse', u'courtprev19_dayslapse',
+                        u'courtprev20_dayslapse', u'numcourtgrantother_prev5', u'courtprevother5_dayslapse',
+                        u'numcourtgrantother_prev6', u'courtprevother6_dayslapse', u'numcourtgrantother_prev7',
+                        u'courtprevother7_dayslapse', u'numcourtgrantother_prev8', u'courtprevother8_dayslapse',
+                        u'numcourtgrantother_prev9', u'courtprevother9_dayslapse', u'numcourtgrantother_prev10',
+                        u'courtprevother10_dayslapse', u'courtmeanyear', u'courtmeannatyear',
+                        u'courtmeannatdefyear', u'judgemeanyear', u'judgemeannatyear', u'judgemeannatdefyear',
+                        u'judgenumdecyear', u'judgenumdecnatyear', u'judgenumdecnatdefyear',u'grantgrant',
                         u'grantdeny', u'denygrant', u'denydeny']
     df = df.drop(drop_features,axis=1)
     df = df[pd.notnull(df[label_column])]
-    
+
     # balance the two labels
     df_label_0 = df[df[label_column]==0]
     df_label_1 = df[df[label_column]==1]
@@ -393,7 +393,7 @@ def main():
 #    Algos = ["Linear Regression","Logistic Regression_l1","Logistic Regression_l2","Random Forest"]
     thresholds = [0,0.5,1,2,5]
     Algos = ["Linear Regression","Logistic Regression_l1","Logistic Regression_l2"]
-    
+
     try:
         os.mkdir("output")
     except:
